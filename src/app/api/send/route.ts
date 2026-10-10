@@ -4,6 +4,9 @@ import { NextResponse } from 'next/server'
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request: Request) {
+	if (process.env.EN_API !== '1') {
+		return NextResponse.json({ error: 'API is disabled' }, { status: 403 })
+	}
 	try {
 		const { name, email, message, quizAnswers } = await request.json()
 
