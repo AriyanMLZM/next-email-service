@@ -2,10 +2,18 @@ import { Resend } from 'resend'
 import { NextResponse } from 'next/server'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+const FROM = process.env.FROM
+const TO = process.env.TO
 
 export async function POST(request: Request) {
 	if (process.env.EN_API !== '1') {
 		return NextResponse.json({ error: 'API is disabled' }, { status: 403 })
+	}
+	if (!FROM || !TO) {
+		return NextResponse.json(
+			{ error: 'FROM and TO environment variables must be set' },
+			{ status: 500 },
+		)
 	}
 	try {
 		const { name, email, message, quizAnswers } = await request.json()
@@ -19,8 +27,8 @@ export async function POST(request: Request) {
 			.join('')
 
 		const { data, error } = await resend.emails.send({
-			from: 'Acme <onboarding@resend.dev>', // Replace with your verified sender
-			to: ['delivered@resend.dev'], // Replace with your Resend receiving address
+			from: FROM, // Replace with your verified sender
+			to: [TO], // Replace with your Resend receiving address
 			subject: `New message from ${name}`,
 			html: `
         <h2>New Contact Form Submission</h2>
